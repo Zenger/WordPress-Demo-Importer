@@ -23,13 +23,13 @@ if (isset($_GET['page']) && $_GET['page'] == "mdi") {
 }
 
 // Taken from : http://stackoverflow.com/questions/5707806/recursive-copy-of-directory
-function mint_recurse_copy($src,$dst) { 
+function zenger_recursive_copy($src,$dst) { 
     $dir = opendir($src); 
     @mkdir($dst); 
     while(false !== ( $file = readdir($dir)) ) { 
         if (( $file != '.' ) && ( $file != '..' )) { 
             if ( is_dir($src . '/' . $file) ) { 
-                mint_recurse_copy($src . '/' . $file,$dst . '/' . $file); 
+                zenger_recursive_copy($src . '/' . $file,$dst . '/' . $file); 
             } 
             else { 
                 copy($src . '/' . $file,$dst . '/' . $file); 
@@ -39,7 +39,7 @@ function mint_recurse_copy($src,$dst) {
     closedir($dir); 
 }
 // Taken from: http://stackoverflow.com/questions/147821/loading-sql-files-from-within-php/149456#149456 (as in PHPBB)
-class Mint_SQL_Parse 
+class Zenger_SQL_Parse 
 {
 	function remove_comments(&$output)
 	{
@@ -195,11 +195,11 @@ class Mint_SQL_Parse
 	}
 }
 
-class MintDemoImporter 
+class ZengerDemoImporter 
 {
 	public static function init()
 	{
-		add_action('admin_menu', array('MintDemoImporter', 'add_menu_page'));
+		add_action('admin_menu', array('ZengerDemoImporter', 'add_menu_page'));
 	}
 
 	public static function show_notice()
@@ -208,7 +208,7 @@ class MintDemoImporter
 		{
 			?>
 			 <div class="updated">
-		        <p>[Mint] Click <a href="<?php echo admin_url("tools.php?page=mdi"); ?>">Here</a> if you want to Import the Demo Data. <a href="<?php echo admin_url("tools.php?page=mdi"); ?>">Import</a> | <a href="<?php echo admin_url("tools.php?page=mdi&cx=remove_notice"); ?>">Dismiss</a></p>
+		        <p>[Zenger] Click <a href="<?php echo admin_url("tools.php?page=mdi"); ?>">Here</a> if you want to Import the Demo Data. <a href="<?php echo admin_url("tools.php?page=mdi"); ?>">Import</a> | <a href="<?php echo admin_url("tools.php?page=mdi&cx=remove_notice"); ?>">Dismiss</a></p>
 		    </div>
 		    <?php
 		}	
@@ -216,13 +216,13 @@ class MintDemoImporter
 
 	public static function add_menu_page()
 	{
-		add_submenu_page( 'tools.php', 'Mint Import', 'Mint Import Demo', 'manage_options', 'mdi', array('MintDemoImporter', 'render_page')  );
+		add_submenu_page( 'tools.php', 'Zenger Import', 'Zenger Import Demo', 'manage_options', 'mdi', array('ZengerDemoImporter', 'render_page')  );
 	}
 
 	public static function render_page()
 	{
 		echo "<div class='wrap'>";
-		echo "<h2>Mint Importer</h2> <br />";
+		echo "<h2>Zenger Importer</h2> <br />";
 		$rules = array(
 			'Max Execution Time' => array( ini_get('max_execution_time'), 0 , 'max_execution_time' ),
 			'Memory Limit'       => array( ini_get('memory_limit'), 256, 'memory_limit'),
@@ -242,8 +242,8 @@ class MintDemoImporter
 
 		}
 
-		if ( !is_readable( MDI_PATH . "/sql/mdi.sql")) {
-			echo "<p>" . MDI_PATH . "/sql/mdi.sql doesn't exist or isn't readable! </p>";
+		if ( !is_readable( MDI_PATH . "/sql/sqlfile.sql")) {
+			echo "<p>" . MDI_PATH . "/sql/sqlfile.sql doesn't exist or isn't readable! </p>";
 			$fail = true;
 		}
 
@@ -312,13 +312,13 @@ class MintDemoImporter
 
 				$replaces = array(
 					'ms_t_8_'                           => $wpdb->prefix,         // prefix
-					'http://demo.1theme.com/Mint'       => get_option('siteurl'), // urls
-					'http:\\\\/\\\\/demo.1theme.com\\\\/Mint' => $site_url_e,           // urls
+					'http://demo.1theme.com/Zenger'       => get_option('siteurl'), // urls
+					'http:\\\\/\\\\/demo.1theme.com\\\\/Zenger' => $site_url_e,           // urls
 					'wp-content/uploads/sites/8'        => $upload_path,          // upload dir unescaped
 					'wp-content\\\\/uploads\\\\/sites\\\\/8'  => $upload_path_e         // upload dir escaped
 				);
 
-				$SQL = file_get_contents( MDI_PATH . "/sql/mdi.sql" );
+				$SQL = file_get_contents( MDI_PATH . "/sql/sqlfile.sql" );
 
 				
 
@@ -335,8 +335,8 @@ class MintDemoImporter
 					@flush();
 
 					$sql_query = trim($SQL);
-					$sql_query = Mint_SQL_Parse::remove_remarks($sql_query);
-					$sql_query = Mint_SQL_Parse::split_sql_file($sql_query, ';');
+					$sql_query = Zenger_SQL_Parse::remove_remarks($sql_query);
+					$sql_query = Zenger_SQL_Parse::split_sql_file($sql_query, ';');
 
 					
 
@@ -371,7 +371,7 @@ class MintDemoImporter
 					@flush();
 
 					$uploads_dir = wp_upload_dir();
-					mint_recurse_copy(MDI_PATH . "/uploads/", $uploads_dir['basedir'] );
+					zenger_recursive_copy(MDI_PATH . "/uploads/", $uploads_dir['basedir'] );
 
 					echo "<p>All Uploads Have Been Imported </p>";
 					@ob_flush(); 
@@ -400,5 +400,5 @@ class MintDemoImporter
 	}
 }
 
-add_action('init',          array('MintDemoImporter', 'init') );
-add_action('admin_notices', array('MintDemoImporter', 'show_notice'));
+add_action('init',          array('ZengerDemoImporter', 'init') );
+add_action('admin_notices', array('ZengerDemoImporter', 'show_notice'));
